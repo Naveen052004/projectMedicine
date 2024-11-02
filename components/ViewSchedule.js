@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SectionList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 
-const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const daysOfWeek = ['All Days', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const ViewSchedule = () => {
   const [reminders, setReminders] = useState([]);
+  const [selectedDay, setSelectedDay] = useState('All Days');
 
   const fetchReminders = async () => {
     try {
@@ -13,7 +15,7 @@ const ViewSchedule = () => {
       const reminders = storedReminders ? JSON.parse(storedReminders) : [];
 
       // Organize reminders by day of the week
-      const organizedReminders = daysOfWeek.map(day => ({
+      const organizedReminders = daysOfWeek.slice(1).map(day => ({
         title: day,
         data: reminders.filter(reminder => reminder.days.includes(day)),
       }));
@@ -27,6 +29,10 @@ const ViewSchedule = () => {
     fetchReminders();
   }, []);
 
+  const filteredReminders = selectedDay === 'All Days'
+    ? reminders
+    : reminders.filter(reminder => reminder.title === selectedDay);
+
   const renderReminderItem = ({ item }) => (
     <Text style={styles.reminderText}>{`${item.medicineName} - ${item.dosage} at ${item.time}`}</Text>
   );
@@ -37,8 +43,18 @@ const ViewSchedule = () => {
 
   return (
     <View style={styles.container}>
+      <Picker
+        selectedValue={selectedDay}
+        onValueChange={(itemValue) => setSelectedDay(itemValue)}
+        style={styles.picker}
+      >
+        {daysOfWeek.map(day => (
+          <Picker.Item key={day} label={day} value={day} />
+        ))}
+      </Picker>
+
       <SectionList
-        sections={reminders}
+        sections={filteredReminders}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => renderReminderItem({ item })}
         renderSectionHeader={({ section: { title } }) => (
@@ -54,6 +70,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 20,
   },
   dayTitle: {
     fontSize: 20,

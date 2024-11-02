@@ -10,7 +10,12 @@ const HomeScreen = ({ navigation }) => {
     try {
       const storedReminders = await AsyncStorage.getItem('reminders');
       const reminders = storedReminders ? JSON.parse(storedReminders) : [];
-      setMedications(reminders);
+
+      // Filter medications by today’s day
+      const today = new Date().toLocaleString('en-US', { weekday: 'long' });
+      const todaysMedications = reminders.filter((reminder) => reminder.days.includes(today));
+
+      setMedications(todaysMedications);
     } catch (error) {
       console.error('Failed to load medications', error);
     }
@@ -55,7 +60,9 @@ const HomeScreen = ({ navigation }) => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => (
             <View style={styles.medicationItem}>
-              <Text style={styles.medText}>{`${item.medicineName} - ${item.dosage}`}</Text>
+              <Text style={styles.medText}>
+                {`${item.medicineName} - ${item.dosage} - ${item.time}`}
+              </Text>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('EditReminder', { item, index })}>
                   <Text style={styles.editButton}>Edit</Text>
