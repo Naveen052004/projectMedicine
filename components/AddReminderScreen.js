@@ -8,7 +8,7 @@ const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fri
 
 const AddReminderScreen = ({ navigation }) => {
   const [medicineName, setMedicineName] = useState('');
-  const [dosage, setDosage] = useState('');
+  const [dosageInstructions, setDosageInstructions] = useState(''); // Changed to "Dosage Instructions"
   const [time, setTime] = useState(new Date());
   const [selectedDays, setSelectedDays] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
@@ -61,7 +61,7 @@ const AddReminderScreen = ({ navigation }) => {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: `Time to take your ${reminder.medicineName}!`,
-          body: `${reminder.dosage}`,
+          body: `${reminder.dosageInstructions}`, // Updated field name
           sound: 'default',
         },
         trigger: {
@@ -74,14 +74,14 @@ const AddReminderScreen = ({ navigation }) => {
   };
 
   const handleAddMedicine = async () => {
-    if (!medicineName || !dosage || selectedDays.length === 0) {
+    if (!medicineName || !dosageInstructions || selectedDays.length === 0) { // Changed to dosageInstructions
       Alert.alert('Error', 'Please fill in all fields and select at least one day!');
       return;
     }
 
     const newReminder = {
       medicineName,
-      dosage,
+      dosageInstructions, // Changed to dosageInstructions
       time: time.toLocaleTimeString(),
       days: selectedDays,
     };
@@ -115,10 +115,9 @@ const AddReminderScreen = ({ navigation }) => {
 
         <TextInput
           style={styles.input}
-          placeholder="Dosage (e.g., 2 pills)"
-          value={dosage}
-          onChangeText={setDosage}
-          keyboardType="numeric"
+          placeholder="Dosage Instructions (e.g., 1 pill after meal)"
+          value={dosageInstructions} // Changed field name
+          onChangeText={setDosageInstructions} // Changed field name
         />
 
         <Text style={styles.label}>Select Days:</Text>
@@ -135,10 +134,7 @@ const AddReminderScreen = ({ navigation }) => {
               onPress={() => toggleDaySelection(day)}
             >
               <View
-                style={[
-                  styles.checkbox,
-                  selectedDays.includes(day) && styles.checkboxSelected
-                ]}
+                style={[styles.checkbox, selectedDays.includes(day) && styles.checkboxSelected]}
               />
               <Text style={styles.checkboxLabel}>{day}</Text>
             </TouchableOpacity>

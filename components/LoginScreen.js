@@ -1,26 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity } from 'react-native';
 
 // Import your background image
 const backgroundImage = require('../static/img/image.png'); // Adjust the path as necessary
 
-const LoginScreen = ({ navigation, title }) => {
-  // console.log(title);
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Simple login function
   const handleLogin = () => {
     navigation.navigate('Home');
-    // if (!email || !password) {
-    //   Alert.alert('Error', 'Please fill in both email and password!');
-    // } else {
-    //   // Simulating a successful login (you can integrate your real login logic here)
-    //   Alert.alert('Success', 'You are logged in!');
+    // You can add your login logic here
+  };
 
-    //   // You can navigate to the home screen here after successful login
-    //   // navigation.navigate('Home');
-    // }
+  const handleGoogleLogin = () => {
+    Alert.alert('Login with Google', 'This feature will be implemented soon!');
   };
 
   return (
@@ -46,7 +40,15 @@ const LoginScreen = ({ navigation, title }) => {
         />
         
         <Button title="Login" onPress={handleLogin} />
-        
+
+        {/* OR Line */}
+        <Text style={styles.orText}>— OR —</Text>
+
+        {/* Google Login Button */}
+        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+          <Text style={styles.googleButtonText}>Login with Google</Text>
+        </TouchableOpacity>
+
         <Text style={styles.signupText}>
           Don't have an account?{' '}
           <Text style={styles.signupLink} onPress={() => navigation.navigate('SignUp')}>
@@ -84,6 +86,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 15,
   },
+  orText: {
+    marginVertical: 15,
+    textAlign: 'center',
+    color: '#555',
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+  googleButton: {
+    marginTop: 20,
+    backgroundColor: '#DB4437', // Google reddish-orange color
+    borderRadius: 5,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  googleButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   signupText: {
     textAlign: 'center',
     marginTop: 20,
@@ -93,6 +114,6 @@ const styles = StyleSheet.create({
     color: 'blue',
     fontWeight: 'bold',
   },
-});
+}); 
 
 export default LoginScreen;

@@ -1,18 +1,23 @@
-// EditReminder.js
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const EditReminder = ({ route, navigation }) => {
   const { item, index } = route.params;
   const [medicineName, setMedicineName] = useState(item.medicineName);
-  const [dosage, setDosage] = useState(item.dosage);
-  const [time, setTime] = useState(item.time);
+  const [dosageInstructions, setDosageInstructions] = useState(item.dosageInstructions); // Updated field
+  const [time, setTime] = useState(new Date()); // Set random initial time
   const [selectedDays, setSelectedDays] = useState(item.days);
+  const [showPicker, setShowPicker] = useState(false);
+
+  useEffect(() => {
+    const randomTime = new Date();
+    randomTime.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60), 0); // Generate a random time
+    setTime(randomTime);
+  }, []);
 
   const saveEdits = async () => {
     try {
@@ -23,8 +28,8 @@ const EditReminder = ({ route, navigation }) => {
       reminders[index] = {
         ...reminders[index],
         medicineName,
-        dosage,
-        time,
+        dosageInstructions, // Updated field
+        time: time.toLocaleTimeString(),
         days: selectedDays,
       };
 
@@ -47,6 +52,12 @@ const EditReminder = ({ route, navigation }) => {
     });
   };
 
+  const onTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || time;
+    setShowPicker(false);
+    setTime(currentTime);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Medicine Name</Text>
@@ -56,21 +67,27 @@ const EditReminder = ({ route, navigation }) => {
         onChangeText={setMedicineName}
       />
 
-      <Text style={styles.label}>Dosage</Text>
+      <Text style={styles.label}>Dosage Instructions</Text>
       <TextInput
         style={styles.input}
-        value={dosage}
-        onChangeText={setDosage}
-        keyboardType="numeric"
+        value={dosageInstructions}
+        onChangeText={setDosageInstructions}
+        placeholder="e.g., Take 1 tablet after meals"
       />
 
-      <Text style={styles.label}>Time</Text>
-      <TextInput
-        style={styles.input}
-        value={time}
-        onChangeText={setTime}
-        placeholder="HH:MM AM/PM"
-      />
+      <Text style={styles.label}>Edit Time</Text>
+      <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.timeButton}>
+        <Text style={styles.timeText}>{time.toLocaleTimeString()}</Text>
+      </TouchableOpacity>
+
+      {showPicker && (
+        <DateTimePicker
+          value={time}
+          mode="time"
+          display="default"
+          onChange={onTimeChange}
+        />
+      )}
 
       <Text style={styles.label}>Days</Text>
       {daysOfWeek.map((day) => (
@@ -83,7 +100,12 @@ const EditReminder = ({ route, navigation }) => {
         </View>
       ))}
 
-      <Button title="Save Changes" onPress={saveEdits} />
+      <View style={styles.buttonsContainer}>
+        <Button title="Save Changes" onPress={saveEdits} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.cancelButton}>
+          <Text style={styles.cancelText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -106,11 +128,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
   },
+  timeButton: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  timeText: {
+    fontSize: 16,
+    color: '#333',
+  },
   daySelector: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginVertical: 5,
+  },
+  buttonsContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    padding: 10,
+    backgroundColor: '#f44336',
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 

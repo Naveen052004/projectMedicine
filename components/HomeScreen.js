@@ -8,11 +8,12 @@ const backgroundImage = require('../static/img/image.png'); // Adjust the path a
 
 const HomeScreen = ({ navigation }) => {
   const [medications, setMedications] = useState([]);
+  const [expandedIndex, setExpandedIndex] = useState(null); // Track which card is expanded
 
   const fetchMedications = async () => {
     try {
       const storedReminders = await AsyncStorage.getItem('reminders');
-      const reminders = storedReminders ? JSON.parse(storedReminders) : [];
+      const reminders = storedReminders ? JSON.parse(storedReminders) : []; 
 
       // Filter medications by today’s day
       const today = new Date().toLocaleString('en-US', { weekday: 'long' });
@@ -45,6 +46,10 @@ const HomeScreen = ({ navigation }) => {
     );
   };
 
+  const toggleExpand = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index); // Toggle the expanded index
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       fetchMedications();
@@ -64,9 +69,19 @@ const HomeScreen = ({ navigation }) => {
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => (
               <View style={styles.medicationItem}>
-                <Text style={styles.medText}>
-                  {`${item.medicineName} - ${item.dosage} - ${item.time}`}
-                </Text>
+                <TouchableOpacity onPress={() => toggleExpand(index)} style={styles.medTextContainer}>
+                  <Text style={styles.medText}>
+                    {`${item.medicineName} - ${item.dosageInstructions} - ${item.time}`}
+                  </Text>
+                </TouchableOpacity>
+
+                {expandedIndex === index && (
+                  <View style={styles.expandedContent}>
+                    <Text style={styles.additionalInfo}>Additional Info: {item.additionalInfo || 'N/A'}</Text>
+                    {/* You can add more fields if necessary */}
+                  </View>
+                )}
+
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity onPress={() => navigation.navigate('EditReminder', { item, index })}>
                     <Text style={styles.editButton}>Edit</Text>
@@ -123,17 +138,31 @@ const styles = StyleSheet.create({
   medText: {
     fontSize: 18,
   },
-  medicationItem: {
+  medTextContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+  },
+  medicationItem: {
     padding: 15,
     marginBottom: 10,
     backgroundColor: '#f9c2ff',
     borderRadius: 5,
   },
+  expandedContent: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    marginBottom: 10,
+  },
+  additionalInfo: {
+    fontSize: 16,
+    color: '#555',
+  },
   buttonContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
   editButton: {
     color: 'blue',
