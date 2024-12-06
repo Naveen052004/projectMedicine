@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // For storing reminders
 import * as Notifications from 'expo-notifications';
@@ -49,15 +49,12 @@ const AddReminderScreen = ({ navigation }) => {
     setTime(currentTime);
   };
 
-  // Schedule the notification for each selected day
   const scheduleNotification = async (reminder) => {
     const notificationTime = new Date(time);
     
-    // Schedule notification for each selected day
     for (const day of reminder.days) {
       const dayIndex = daysOfWeek.indexOf(day);
       const dayDate = new Date(notificationTime);
-      // Set the notification to the next occurrence of the selected day
       const daysUntilNextOccurrence = (dayIndex - dayDate.getDay() + 7) % 7; // Calculate days until next occurrence
       dayDate.setDate(dayDate.getDate() + daysUntilNextOccurrence);
       
@@ -65,12 +62,12 @@ const AddReminderScreen = ({ navigation }) => {
         content: {
           title: `Time to take your ${reminder.medicineName}!`,
           body: `${reminder.dosage}`,
-          sound: 'default', // Use default sound for notifications
+          sound: 'default',
         },
         trigger: {
           date: dayDate,
           seconds: 0,
-          repeats: true, // Repeat notification
+          repeats: true,
         },
       });
     }
@@ -105,70 +102,83 @@ const AddReminderScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Medicine Reminder</Text>
+    <ImageBackground source={require('../static/img/image.png')} style={styles.background}>
+      <View style={styles.whiteContainer}>
+        <Text style={styles.title}>Add Medicine Reminder</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Medicine Name"
-        value={medicineName}
-        onChangeText={setMedicineName}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Dosage (e.g., 2 pills)"
-        value={dosage}
-        onChangeText={setDosage}
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.label}>Select Days:</Text>
-      <View style={styles.daysContainer}>
-        <TouchableOpacity style={styles.checkboxContainer} onPress={toggleEverydaySelection}>
-          <View style={[styles.checkbox, everydaySelected && styles.checkboxSelected]} />
-          <Text style={styles.checkboxLabel}>Everyday</Text>
-        </TouchableOpacity>
-
-        {daysOfWeek.map((day, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.checkboxContainer}
-            onPress={() => toggleDaySelection(day)}
-          >
-            <View
-              style={[
-                styles.checkbox,
-                selectedDays.includes(day) && styles.checkboxSelected
-              ]}
-            />
-            <Text style={styles.checkboxLabel}>{day}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.label}>Reminder Time</Text>
-      <Button title="Set Time" onPress={() => setShowPicker(true)} />
-      {showPicker && (
-        <DateTimePicker
-          value={time}
-          mode="time"
-          display="default"
-          onChange={onTimeChange}
+        <TextInput
+          style={styles.input}
+          placeholder="Medicine Name"
+          value={medicineName}
+          onChangeText={setMedicineName}
         />
-      )}
-      <Text style={styles.timeText}>Selected Time: {time.toLocaleTimeString()}</Text>
 
-      <Button title="Add Medicine" onPress={handleAddMedicine} />
-    </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Dosage (e.g., 2 pills)"
+          value={dosage}
+          onChangeText={setDosage}
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.label}>Select Days:</Text>
+        <View style={styles.daysContainer}>
+          <TouchableOpacity style={styles.checkboxContainer} onPress={toggleEverydaySelection}>
+            <View style={[styles.checkbox, everydaySelected && styles.checkboxSelected]} />
+            <Text style={styles.checkboxLabel}>Everyday</Text>
+          </TouchableOpacity>
+
+          {daysOfWeek.map((day, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.checkboxContainer}
+              onPress={() => toggleDaySelection(day)}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  selectedDays.includes(day) && styles.checkboxSelected
+                ]}
+              />
+              <Text style={styles.checkboxLabel}>{day}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={styles.label}>Reminder Time</Text>
+        <Button title="Set Time" onPress={() => setShowPicker(true)} />
+        {showPicker && (
+          <DateTimePicker
+            value={time}
+            mode="time"
+            display="default"
+            onChange={onTimeChange}
+          />
+        )}
+        <Text style={styles.timeText}>Selected Time: {time.toLocaleTimeString()}</Text>
+
+        <Button title="Add Medicine" onPress={handleAddMedicine} />
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
     justifyContent: 'center',
+  },
+  whiteContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white
+    borderRadius: 10,
     padding: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   title: {
     fontSize: 24,

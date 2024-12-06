@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, FlatList, TouchableOpacity, Alert, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+
+// Import your background image
+const backgroundImage = require('../static/img/image.png'); // Adjust the path as necessary
 
 const HomeScreen = ({ navigation }) => {
   const [medications, setMedications] = useState([]);
@@ -49,54 +52,63 @@ const HomeScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Today's Medications</Text>
+    <ImageBackground source={backgroundImage} style={styles.container}>
+      <View style={styles.innerContainer}>
+        <Text style={styles.title}>Today's Medications</Text>
 
-      {medications.length === 0 ? (
-        <Text style={styles.noMedsText}>No medications for today!</Text>
-      ) : (
-        <FlatList
-          data={medications}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <View style={styles.medicationItem}>
-              <Text style={styles.medText}>
-                {`${item.medicineName} - ${item.dosage} - ${item.time}`}
-              </Text>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('EditReminder', { item, index })}>
-                  <Text style={styles.editButton}>Edit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteMedicine(index)}>
-                  <Text style={styles.deleteButton}>Delete</Text>
-                </TouchableOpacity>
+        {medications.length === 0 ? (
+          <Text style={styles.noMedsText}>No medications for today!</Text>
+        ) : (
+          <FlatList
+            data={medications}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <View style={styles.medicationItem}>
+                <Text style={styles.medText}>
+                  {`${item.medicineName} - ${item.dosage} - ${item.time}`}
+                </Text>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity onPress={() => navigation.navigate('EditReminder', { item, index })}>
+                    <Text style={styles.editButton}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => deleteMedicine(index)}>
+                    <Text style={styles.deleteButton}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
-        />
-      )}
+            )}
+          />
+        )}
 
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate('AddReminder')}
-      >
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => navigation.navigate('AddReminder')}
+        >
+          <Text style={styles.fabText}>+</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.fab, styles.scheduleButton]}
-        onPress={() => navigation.navigate('Schedule')}
-      >
-        <Text style={styles.fabText}>📅</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={[styles.fab, styles.scheduleButton]}
+          onPress={() => navigation.navigate('Schedule')}
+        >
+          <Text style={styles.fabText}>📅</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  innerContainer: {
+    flex: 1,
     padding: 20,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Adjusted to lower opacity (0.7)
+    borderRadius: 10,
+    margin: 20,
   },
   title: {
     fontSize: 24,
